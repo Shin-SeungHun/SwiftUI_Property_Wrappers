@@ -30,10 +30,12 @@ struct Forum: View {
     @State private var list: [Post] = Post.list
     @State private var showAddView: Bool = false
     
+    @ObservedObject var postVM = PostViewModel()
+    
     var body: some View {
         ScrollView {
             LazyVStack {
-                ForEach(list) { post in
+                ForEach(postVM.list) { post in
                     NavigationLink {
                         PostDetail(post: post)
                     } label: {
@@ -56,13 +58,22 @@ struct Forum: View {
             .padding()
         }
         .sheet(isPresented: $showAddView) {
-            PostAdd { post in
-                list.insert(post, at: 0)
-            }
+            PostAdd()
             
         }
         
     }
+}
+
+///
+class PostViewModel: ObservableObject {
+    @Published var list: [Post] = Post.list
+    
+    func addPost(text: String) {
+        let newPost = Post(username: "유저 이름", content: text)
+        list.insert(newPost, at: 0)
+    }
+    
 }
 
 /// post 등록하는 View
@@ -71,7 +82,9 @@ struct PostAdd: View {
     @Environment(\.dismiss) private var dismiss
     @State private var text: String = ""
     
-    let action: (_ post: Post) -> ()
+    @ObservedObject var postVM = PostViewModel()
+    
+//    let action: (_ post: Post) -> ()
     
     var body: some View {
         NavigationView {
@@ -95,8 +108,9 @@ struct PostAdd: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("게시") {
-                        let newPost = Post(username: "우저 이름", content: text)
-                        action(newPost)
+//                        let newPost = Post(username: "우저 이름", content: text)
+//                        action(newPost)
+                        postVM.addPost(text: text)
                         dismiss()
                     }
                 }
@@ -123,9 +137,7 @@ struct PostDetail: View {
                 Text("수정")
             })
             .sheet(isPresented: $showEditView) {
-                PostAdd { post in
-                    
-                }
+                PostAdd()
             }
         }
     }
