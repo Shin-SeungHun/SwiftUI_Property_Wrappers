@@ -9,13 +9,19 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationView {
+            TabView {
+                Forum()
+                    .tabItem {
+                        Image(systemName: "bubble.right")
+                    }
+                Text("두번째 탭")
+                    .tabItem {
+                        Image(systemName: "house")
+                    }
+            }
+            .navigationTitle("Scrum 스터디 방")
         }
-        .padding()
     }
 }
 
@@ -165,11 +171,11 @@ extension Post {
 }
 
 #Preview {
-//    ContentView()
+    ContentView()
 //    PostRow(post: Post(username: "스티브", content: "안녕하세요"))
 //    PostDetail(post: Post(username: "스티브", content: "안녕하세요"))
 //    PostAdd() { post in }
-        NavigationView {
-            Forum()
-        }
+//        NavigationView {
+//            Forum()
+//        }
 }
