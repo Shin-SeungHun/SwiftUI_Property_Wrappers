@@ -19,6 +19,26 @@ struct ContentView: View {
     }
 }
 
+/// PostRow가 선택되면 이동할 NavigationView
+struct PostDetail: View {
+    let post: Post
+    var body: some View {
+        VStack(spacing: 20) {
+            Text(post.username)
+            Text(post.content)
+                .font(.largeTitle)
+            
+            Button(action: {
+                
+            }, label: {
+                Image(systemName: "pencil")
+                Text("수정")
+            })
+        }
+    }
+}
+
+/// Item view
 struct PostRow: View {
     let post: Post
     let colors: [Color] = [
@@ -66,5 +86,6 @@ extension Post {
 
 #Preview {
 //    ContentView()
-      PostRow(post: Post(username: "스티브", content: "안녕하세요"))
+//    PostRow(post: Post(username: "스티브", content: "안녕하세요"))
+    PostDetail(post: Post(username: "스티브", content: "안녕하세요"))
 }
