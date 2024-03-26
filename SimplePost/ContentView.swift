@@ -19,6 +19,46 @@ struct ContentView: View {
     }
 }
 
+/// 지금까지 작성한 view들을 모두 가지는 view
+struct Forum: View {
+    @State private var list: [Post] = Post.list
+    @State private var showAddView: Bool = false
+    
+    var body: some View {
+        ScrollView {
+            LazyVStack {
+                ForEach(list) { post in
+                    NavigationLink {
+                        PostDetail(post: post)
+                    } label: {
+                        PostRow(post: post)
+                    }
+                    .tint(.primary)
+                }
+            }
+        }
+        .refreshable {}
+        .safeAreaInset(edge: .bottom, alignment: .trailing) {
+            Button {
+                
+            } label: {
+                Image(systemName: "plus")
+                    .font(.largeTitle)
+                    .padding()
+                    .background(Circle().fill(.white).shadow(radius: 4))
+            }
+            .padding()
+        }
+        .sheet(isPresented: $showAddView) {
+            PostAdd { post in
+                list.insert(post, at: 0)
+            }
+            
+        }
+        
+    }
+}
+
 /// post 등록하는 View
 struct PostAdd: View {
     @FocusState private var focused: Bool
@@ -128,5 +168,8 @@ extension Post {
 //    ContentView()
 //    PostRow(post: Post(username: "스티브", content: "안녕하세요"))
 //    PostDetail(post: Post(username: "스티브", content: "안녕하세요"))
-    PostAdd() { post in }
+//    PostAdd() { post in }
+        NavigationView {
+            Forum()
+        }
 }
