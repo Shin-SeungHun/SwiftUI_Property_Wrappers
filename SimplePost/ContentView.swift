@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject var postVM = PostViewModel()
     
     var body: some View {
         NavigationStack {
@@ -24,7 +23,6 @@ struct ContentView: View {
             }
             .navigationTitle("Scrum 스터디 방")
         }
-        .environmentObject(postVM)
     }
 }
 
@@ -32,15 +30,15 @@ struct ContentView: View {
 struct Forum: View {
     @State private var list: [Post] = Post.list
     @State private var showAddView: Bool = false
+    @State private var newPost = Post(username: "유저 이름", content: "")
     
-    @EnvironmentObject var postVM: PostViewModel
     
     var body: some View {
         ScrollView {
             LazyVStack {
-                ForEach(postVM.list) { post in
+                ForEach($list) { $post in
                     NavigationLink {
-                        PostDetail(post: post)
+                        PostDetail(post: $post)
                     } label: {
                         PostRow(post: post)
                     }
@@ -61,75 +59,56 @@ struct Forum: View {
             .padding()
         }
         .fullScreenCover(isPresented: $showAddView) {
-            PostAdd()
-            
+            NavigationView {
+                PostAdd(editingPost: $newPost)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button("취소") {
+                                newPost = Post(username: "유저 이름", content: "")
+                                showAddView = false
+                            }
+                        }
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button("게시") {
+                                list.insert(newPost, at: 0)
+                                showAddView = false
+                                newPost = Post(username: "유저 이름", content: "")
+                            }
+                        }
+                    }
+            }
         }
         
     }
 }
 
-///
-class PostViewModel: ObservableObject {
-    @Published var list: [Post] = Post.list
-    
-    func addPost(text: String) {
-        let newPost = Post(username: "유저 이름", content: text)
-        list.insert(newPost, at: 0)
-    }
-    
-}
-
 /// post 등록하는 View
 struct PostAdd: View {
     @FocusState private var focused: Bool
-    @Environment(\.dismiss) private var dismiss
-    @State private var text: String
-    
-    @EnvironmentObject var postVM: PostViewModel
-    
-    init(post: Post? = nil) {
-        _text = State(wrappedValue: post?.content ?? "")
-    }
-    
-//    let action: (_ post: Post) -> ()
+    @Binding var editingPost: Post
     
     var body: some View {
-        NavigationView {
-            VStack {
-                TextField("포스트를 입력해주세요...", text: $text)
-                    .font(.title)
-                    .padding()
-                    .padding(.top)
-                    .focused($focused)
-                    .onAppear { focused = true }
-                Spacer()
-            }
-            .navigationTitle("포스트 게시")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("취소") {
-                        dismiss()
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("게시") {
-//                        let newPost = Post(username: "우저 이름", content: text)
-//                        action(newPost)
-                        postVM.addPost(text: text)
-                        dismiss()
-                    }
-                }
-            }
+        VStack {
+            TextField("포스트를 입력해주세요...", text: $editingPost.content)
+                .font(.title)
+                .padding()
+                .padding(.top)
+                .focused($focused)
+                .onAppear { focused = true }
+            Spacer()
         }
+        .navigationTitle("포스트 게시")
+        .navigationBarTitleDisplayMode(.inline)
+        
     }
 }
 
 /// PostRow가 선택되면 이동할 NavigationView
 struct PostDetail: View {
     @State private var showEditView: Bool = false
-    let post: Post
+//    let post: Post
+    @Binding var post: Post
+    @State private var editingPost = Post(username: "유저 이름", content: "")
     
 //    @ObservedObject var postVM: PostViewModel
     
@@ -146,7 +125,25 @@ struct PostDetail: View {
                 Text("수정")
             })
             .fullScreenCover(isPresented: $showEditView) {
-                PostAdd(post: post)
+                NavigationView {
+                    PostAdd(editingPost: $editingPost)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                Button("취소") {
+                                    post = editingPost
+                                    showEditView = false
+                                }
+                            }
+                            
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("게시") {
+                                    post = editingPost
+                                    showEditView = false
+                                }
+                            }
+                        }
+                }
+                
             }
         }
     }
@@ -183,7 +180,7 @@ struct PostRow: View {
 struct Post: Identifiable {
     let id = UUID()
     let username: String
-    let content: String
+    var content: String
 }
 
 // mock
