@@ -30,14 +30,14 @@ struct Forum: View {
     @State private var list: [Post] = Post.list
     @State private var showAddView: Bool = false
     
-    @ObservedObject var postVM = PostViewModel()
+    @StateObject var postVM = PostViewModel()
     
     var body: some View {
         ScrollView {
             LazyVStack {
                 ForEach(postVM.list) { post in
                     NavigationLink {
-                        PostDetail(post: post)
+                        PostDetail(post: post, postVM: postVM)
                     } label: {
                         PostRow(post: post)
                     }
@@ -58,7 +58,7 @@ struct Forum: View {
             .padding()
         }
         .sheet(isPresented: $showAddView) {
-            PostAdd()
+            PostAdd(postVM: postVM)
             
         }
         
@@ -82,7 +82,7 @@ struct PostAdd: View {
     @Environment(\.dismiss) private var dismiss
     @State private var text: String = ""
     
-    @ObservedObject var postVM = PostViewModel()
+    @ObservedObject var postVM: PostViewModel
     
 //    let action: (_ post: Post) -> ()
     
@@ -122,8 +122,10 @@ struct PostAdd: View {
 /// PostRow가 선택되면 이동할 NavigationView
 struct PostDetail: View {
     @State private var showEditView: Bool = false
-    
     let post: Post
+    
+    @ObservedObject var postVM: PostViewModel
+    
     var body: some View {
         VStack(spacing: 20) {
             Text(post.username)
@@ -137,7 +139,7 @@ struct PostDetail: View {
                 Text("수정")
             })
             .sheet(isPresented: $showEditView) {
-                PostAdd()
+                PostAdd(postVM: postVM)
             }
         }
     }
