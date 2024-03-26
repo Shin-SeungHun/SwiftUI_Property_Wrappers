@@ -83,9 +83,13 @@ class PostViewModel: ObservableObject {
 struct PostAdd: View {
     @FocusState private var focused: Bool
     @Environment(\.dismiss) private var dismiss
-    @State private var text: String = ""
+    @State private var text: String
     
     @EnvironmentObject var postVM: PostViewModel
+    
+    init(post: Post? = nil) {
+        _text = State(wrappedValue: post?.content ?? "")
+    }
     
 //    let action: (_ post: Post) -> ()
     
@@ -142,7 +146,7 @@ struct PostDetail: View {
                 Text("수정")
             })
             .fullScreenCover(isPresented: $showEditView) {
-                PostAdd()
+                PostAdd(post: post)
             }
         }
     }
