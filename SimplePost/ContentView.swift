@@ -19,6 +19,46 @@ struct ContentView: View {
     }
 }
 
+/// post 등록하는 View
+struct PostAdd: View {
+    @FocusState private var focused: Bool
+    @Environment(\.dismiss) private var dismiss
+    @State private var text: String = ""
+    
+    let action: (_ post: Post) -> ()
+    
+    var body: some View {
+        NavigationView {
+            VStack {
+                TextField("포스트를 입력해주세요...", text: $text)
+                    .font(.title)
+                    .padding()
+                    .padding(.top)
+                    .focused($focused)
+                    .onAppear { focused = true }
+                Spacer()
+            }
+            .navigationTitle("포스트 게시")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("취소") {
+                        dismiss()
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("게시") {
+                        let newPost = Post(username: "우저 이름", content: text)
+                        action(newPost)
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
 /// PostRow가 선택되면 이동할 NavigationView
 struct PostDetail: View {
     let post: Post
@@ -87,5 +127,6 @@ extension Post {
 #Preview {
 //    ContentView()
 //    PostRow(post: Post(username: "스티브", content: "안녕하세요"))
-    PostDetail(post: Post(username: "스티브", content: "안녕하세요"))
+//    PostDetail(post: Post(username: "스티브", content: "안녕하세요"))
+    PostAdd() { post in }
 }
