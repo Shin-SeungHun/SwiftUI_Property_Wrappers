@@ -107,6 +107,8 @@ struct PostAdd: View {
 
 /// PostRow가 선택되면 이동할 NavigationView
 struct PostDetail: View {
+    @State private var showEditView: Bool = false
+    
     let post: Post
     var body: some View {
         VStack(spacing: 20) {
@@ -115,11 +117,16 @@ struct PostDetail: View {
                 .font(.largeTitle)
             
             Button(action: {
-                
+                showEditView = true
             }, label: {
                 Image(systemName: "pencil")
                 Text("수정")
             })
+            .sheet(isPresented: $showEditView) {
+                PostAdd { post in
+                    
+                }
+            }
         }
     }
 }
